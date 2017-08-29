@@ -3,16 +3,37 @@
 use std::ops::Add;
 
 /// A coordinate transformation.
-struct CoordinateTransform <S, D> where S: Add, D: Add{
-  pub min_src_x: S,
-  pub max_src_x: S,
-  pub min_src_y: S,
-  pub max_src_y: S,
-  pub min_dest_x: D,
-  pub max_dest_x: D,
-  pub min_dest_y: D,
-  pub max_dest_y: D,
+struct CoordinateTransform <S, D> where S: Scalable, D: Scalable {
+  pub min_src: S,
+  pub max_src: S,
+  pub min_dest: D,
+  pub max_dest: D,
 }
+
+macro_rules! coordinate_impl {
+  ($src_t: ty, $dest_t: ty) => {
+    impl CoordinateTransform<$src_t, $dest_t> {
+
+      #[inline]
+      pub fn scale_number(&self, num: $src_t) -> $dest_t {
+        let numerator = num.saturating_sub(self.min_src);
+        let denominator = self.max_src.saturating_sub(self.min_src);
+        let normalized = numerator as f32 / denominator as f32;
+        let scale = self.max_dest.saturating_sub(self.min_dest) as f32;
+
+        let scaled = (normalized * scale) as $dest_t;
+        scaled.saturating_add(self.min_dest)
+      }
+    }
+  }
+}
+
+// TODO: Loop over these in a macro to generate for all types.
+coordinate_impl!(u8, i8);
+coordinate_impl!(u8, i8);
+coordinate_impl!(u8, i8);
+coordinate_impl!(u8, i8);
+
 
 /// A trait for numbers that can be scaled.
 trait Scalable : Sized + Add<Self, Output=Self> {
@@ -47,9 +68,6 @@ scalable_impl!(Scalable, i16);
 scalable_impl!(Scalable, i32);
 scalable_impl!(Scalable, i64);
 scalable_impl!(Scalable, isize);
-
-
-
 
 /*fn map_x_point(image_position: u32, image_scale: u32) -> i16 {
   let num = image_position as f64;
