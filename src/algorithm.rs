@@ -28,12 +28,29 @@ macro_rules! coordinate_impl {
   }
 }
 
-// TODO: Loop over these in a macro to generate for all types.
-coordinate_impl!(u8, i8);
-coordinate_impl!(u8, i8);
-coordinate_impl!(u8, i8);
-coordinate_impl!(u8, i8);
+// NOTE: This is somewhat messy.
+// There has to be a cleaner way of doing this.
+// Only implemented for the widths used in laser projection.
 
+coordinate_impl!(u16, u16);
+coordinate_impl!(u16, u32);
+coordinate_impl!(u16, i16);
+coordinate_impl!(u16, i32);
+
+coordinate_impl!(u32, u16);
+coordinate_impl!(u32, u32);
+coordinate_impl!(u32, i16);
+coordinate_impl!(u32, i32);
+
+coordinate_impl!(i16, u16);
+coordinate_impl!(i16, u32);
+coordinate_impl!(i16, i16);
+coordinate_impl!(i16, i32);
+
+coordinate_impl!(i32, u16);
+coordinate_impl!(i32, u32);
+coordinate_impl!(i32, i16);
+coordinate_impl!(i32, i32);
 
 /// A trait for numbers that can be scaled.
 trait Scalable : Sized + Add<Self, Output=Self> {
