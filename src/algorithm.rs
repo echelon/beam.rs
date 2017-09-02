@@ -1,9 +1,7 @@
 //! This module contains various algorithms for point and color transforms.
 
-use std::ops::Add;
-
 /// A coordinate transformation.
-struct CoordinateTransform <S, D> where S: Scalable, D: Scalable {
+struct CoordinateTransformer<S, D> {
   pub min_src: S,
   pub max_src: S,
   pub min_dest: D,
@@ -12,7 +10,19 @@ struct CoordinateTransform <S, D> where S: Scalable, D: Scalable {
 
 macro_rules! coordinate_impl {
   ($src_t: ty, $dest_t: ty) => {
-    impl CoordinateTransform<$src_t, $dest_t> {
+    impl CoordinateTransformer<$src_t, $dest_t> {
+
+      /// Construct a new CoordinateTransformer.
+      pub fn new(min_src: $src_t, max_src: $src_t, min_dest: $dest_t,
+                 max_dest: $dest_t) -> CoordinateTransformer<$src_t, $dest_t> {
+
+        CoordinateTransformer {
+          min_src: min_src,
+          max_src: max_src,
+          min_dest: min_dest,
+          max_dest: max_dest,
+        }
+      }
 
       #[inline]
       pub fn scale_number(&self, num: $src_t) -> $dest_t {
@@ -36,7 +46,6 @@ coordinate_impl!(u16, u16);
 coordinate_impl!(u16, u32);
 coordinate_impl!(u16, i16);
 coordinate_impl!(u16, i32);
-
 coordinate_impl!(u32, u16);
 coordinate_impl!(u32, u32);
 coordinate_impl!(u32, i16);
@@ -46,61 +55,38 @@ coordinate_impl!(i16, u16);
 coordinate_impl!(i16, u32);
 coordinate_impl!(i16, i16);
 coordinate_impl!(i16, i32);
-
 coordinate_impl!(i32, u16);
 coordinate_impl!(i32, u32);
 coordinate_impl!(i32, i16);
 coordinate_impl!(i32, i32);
 
-/// A trait for numbers that can be scaled.
-trait Scalable : Sized + Add<Self, Output=Self> {
+#[cfg(test)]
+mod test {
+  use super::*;
 
-  /// Scale a number to a percentage of a range.
-  /// Return values are from 0.0 to 1.0, inclusive.
-  fn scale_to_range(&self, minimum: Self, maximum: Self) -> f32;
-}
+  #[test]
+  fn spot_check() {
+    let mut ct =
+      CoordinateTransformer::<u16, u16>::new(0u16, 100u16, 0u16, 255u16);
 
-macro_rules! scalable_impl {
-  ($trait_name: ident, $t: ty) => {
-    impl $trait_name for $t {
+    assert_eq!(0, ct.scale_number(0));
+    assert_eq!(127, ct.scale_number(50));
+    assert_eq!(255, ct.scale_number(100));
 
-      #[inline]
-      fn scale_to_range(&self, minimum: $t, maximum: $t) -> f32 {
-        let numerator = self.saturating_sub(minimum);
-        let range = maximum.saturating_sub(minimum);
-        numerator as f32 / range as f32
-      }
-    }
+    let mut ct =
+      CoordinateTransformer::<u16, i16>::new(0u16, 100u16, -100i16, 100i16);
+
+    assert_eq!(-100, ct.scale_number(0));
+    assert_eq!(0, ct.scale_number(50));
+    assert_eq!(100, ct.scale_number(100));
+
+    let mut ct =
+      CoordinateTransformer::<i16, u16>::new(0i16, 10i16, 0u16, 1000u16);
+
+    assert_eq!(0, ct.scale_number(0));
+    assert_eq!(200, ct.scale_number(2));
+    assert_eq!(500, ct.scale_number(5));
+    assert_eq!(900, ct.scale_number(9));
+    assert_eq!(1000, ct.scale_number(10));
   }
 }
-
-scalable_impl!(Scalable, u8);
-scalable_impl!(Scalable, u16);
-scalable_impl!(Scalable, u32);
-scalable_impl!(Scalable, u64);
-scalable_impl!(Scalable, usize);
-
-scalable_impl!(Scalable, i8);
-scalable_impl!(Scalable, i16);
-scalable_impl!(Scalable, i32);
-scalable_impl!(Scalable, i64);
-scalable_impl!(Scalable, isize);
-
-/*fn map_x_point(image_position: u32, image_scale: u32) -> i16 {
-  let num = image_position as f64;
-  let denom = image_scale as f64;
-  let ratio = num / denom;
-  let scale = x_max.saturating_sub(x_min) as f64;
-  let result = ratio * scale * -1.0;
-  let result = result as i16;
-
-  result.saturating_add(self.x_offset)
-}*/
-
-
-/*impl <S,D> CoordinateTransform<S, D> where S: Add, D: Add<Output=D> {
-  pub fn transform(self, x: S) -> D {
-    x + self.min_dest_x
-  }
-}*/
-
