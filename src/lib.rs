@@ -9,5 +9,6 @@
 #![deny(unused_imports)]
 #![deny(unused_qualifications)]
 
-pub mod algorithm;
+mod algorithm;
 
+pub use algorithm::Scaler;

@@ -3,7 +3,7 @@
 /// Scaler performs a coordinate transformation from a source range to a target
 /// range.
 #[allow(dead_code)]
-struct Scaler<S, D> {
+pub struct Scaler<S, D> {
   min_src: S,
   max_src: S,
   min_dest: D,
