@@ -1,4 +1,4 @@
-//! This module contains various algorithms for point and color transforms.
+//! This module contains various functions to help scale points.
 
 /// Scaler performs a coordinate transformation from a source range to a target
 /// range.

@@ -7,8 +7,18 @@
 #![deny(unreachable_patterns)]
 #![deny(unused_extern_crates)]
 #![deny(unused_imports)]
+#![deny(unused_mut)]
 #![deny(unused_qualifications)]
+#![deny(unused_variables)]
 
-mod algorithm;
+// Fluent assertions for tests.
+#[cfg(test)]
+#[macro_use(expect)]
+extern crate expectest;
 
-pub use algorithm::Scaler;
+extern crate point;
+
+pub mod rotate;
+pub mod scale;
+
+pub use point::PipelinePoint;

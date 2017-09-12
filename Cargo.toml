@@ -1,6 +1,6 @@
 [package]
   name = "beam"
-  version = "0.1.0"
+  version = "0.2.0"
   authors = [ "Brandon Thomas <bt@brand.io>", "Brandon Thomas <echelon@gmail.com>" ]
   description = "A laser projector DAC library."
   keywords = [ "laser", "projector", "DAC", "hardware" ]
@@ -14,6 +14,10 @@
   path = "src/lib.rs"
 
 [dependencies]
+  point  = "0.3.0"
+
+[dev-dependencies]
+  expectest = "0.9"
 
 [badges]
   travis-ci = { repository = "echelon/beam.rs" }
